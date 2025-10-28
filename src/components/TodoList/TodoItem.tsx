@@ -69,11 +69,10 @@ export const TodoItem: React.FC<TodoItemProps> = ({
       key={todo.id}
       style={{ position: 'relative' }}
     >
-
       {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
       <label
         htmlFor={`todo-${todo.id}`}
-        className="todo__status-label" // eslint-disable-line jsx-a11y/label-has-associated-control
+        className="todo__status-label"
       >
         <input
           data-cy="TodoStatus"
