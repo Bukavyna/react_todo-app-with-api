@@ -8,6 +8,7 @@ import { todosService } from './services/todosService';
 import { Header } from './components/Header/Header';
 import { TodoList } from './components/TodoList/TodoList';
 import { Footer } from './components/Footer/Footer';
+import { ERROR_MESSAGES, getErrorMessage } from './utils/errorHandler';
 
 import './styles/todoapp.scss';
 
@@ -43,7 +44,7 @@ export const App: React.FC = () => {
 
         setTodos(data);
       } catch (err) {
-        setError(err?.message || 'Unable to load todos');
+        setError(getErrorMessage(err, 'LOAD_TODOS'));
 
         timer = window.setTimeout(() => setError(null), 3000);
       } finally {
@@ -65,9 +66,9 @@ export const App: React.FC = () => {
   }
 
   const filters = {
-    all: (t: Todo[]) => t,
-    active: (t: Todo[]) => t.filter(todo => !todo.completed),
-    completed: (t: Todo[]) => t.filter(todo => todo.completed),
+    all: (todos1: Todo[]) => todos1,
+    active: (todos1: Todo[]) => todos1.filter(todo => !todo.completed),
+    completed: (todos1: Todo[]) => todos1.filter(todo => todo.completed),
   };
 
   const getFilteredTodos = () => {
@@ -79,7 +80,7 @@ export const App: React.FC = () => {
     const title = newTitle.trim();
 
     if (!title) {
-      setError('Title should not be empty');
+      setError(ERROR_MESSAGES.EMPTY_TITLE);
       setTimeout(() => setError(null), 3000);
 
       return;
@@ -104,15 +105,15 @@ export const App: React.FC = () => {
 
       setTodos(prev => [...prev, created]);
       setNewTitle('');
-      setTempTodo(null);
     } catch {
-      setError('Unable to add a todo');
+      setError(ERROR_MESSAGES.ADD_TODO);
 
-      setTempTodo(null); //
+      setTempTodo(null);
       setTimeout(() => setError(null), 3000);
     } finally {
       setProcessingIds(prev => prev.filter(id => id !== temp.id));
       setIsCreatingTodo(false);
+      setTempTodo(null);
       setTimeout(() => {
         if (newTodoField.current) {
           newTodoField.current!.focus();
@@ -128,7 +129,7 @@ export const App: React.FC = () => {
       await todosService.removeTodo(id);
       setTodos(prev => prev.filter(t => t.id !== id));
     } catch (err) {
-      setError('Unable to delete a todo');
+      setError(getErrorMessage(err, 'DELETE_TODO'));
       setTimeout(() => setError(null), 3000);
       throw err;
     } finally {
@@ -153,7 +154,7 @@ export const App: React.FC = () => {
 
       setTodos(prev => prev.map(t => (t.id === updated.id ? updated : t)));
     } catch {
-      setError('Unable to update a todo');
+      setError(ERROR_MESSAGES.UPDATE_TODO);
       setTimeout(() => setError(null), 3000);
     } finally {
       setProcessingIds(prev => prev.filter(todoId => todoId !== todo.id));
@@ -179,7 +180,7 @@ export const App: React.FC = () => {
       }
 
       if (results.some(r => r.status === 'rejected')) {
-        setError('Unable to delete a todo');
+        setError(ERROR_MESSAGES.DELETE_TODO);
         setTimeout(() => setError(null), 3000);
       }
     } finally {
@@ -236,11 +237,11 @@ export const App: React.FC = () => {
       );
 
       if (hasError) {
-        setError('Unable to update a todo');
+        setError(ERROR_MESSAGES.UPDATE_TODO);
         setTimeout(() => setError(null), 3000);
       }
     } catch {
-      setError('Unable to toggle all todos');
+      setError(ERROR_MESSAGES.UPDATE_TODO);
       setTimeout(() => setError(null), 3000);
     } finally {
       setProcessingIds(prev => prev.filter(id => !idsToProcess.includes(id)));
@@ -259,6 +260,8 @@ export const App: React.FC = () => {
     try {
       if (!title.trim()) {
         await handleRemoveTodo(id);
+
+        return;
       }
 
       const updated = await todosService.updateTodo({
@@ -267,13 +270,13 @@ export const App: React.FC = () => {
       });
 
       setTodos(prev => prev.map(t => (t.id === updated.id ? updated : t)));
-    } catch {
-      setError(
-        !title.trim() ? 'Unable to delete a todo' : 'Unable to update a todo',
-      );
-      setTimeout(() => setError(null), 3000);
+    } catch (err) {
+      if (title.trim()) {
+        setError(ERROR_MESSAGES.UPDATE_TODO);
+        setTimeout(() => setError(null), 3000);
+      }
 
-      throw new Error('Something went wrong');
+      throw new Error(ERROR_MESSAGES.UNKNOWN);
     } finally {
       setProcessingIds(prev => prev.filter(pid => pid !== id));
     }

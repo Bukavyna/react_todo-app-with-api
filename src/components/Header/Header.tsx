@@ -36,7 +36,6 @@ export const Header: React.FC<HeaderProps> = ({
         />
       )}
 
-      {/* Додати завдання під час надсилання форми */}
       <form onSubmit={handleAddTodo}>
         <input
           data-cy="NewTodoField"

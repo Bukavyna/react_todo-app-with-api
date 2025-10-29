@@ -14,6 +14,16 @@ export const Footer: React.FC<FooterProps> = ({
   setStatus,
   handleClearCompleted,
 }) => {
+  const filters: {
+    key: 'all' | 'active' | 'completed';
+    label: string;
+    cy: string;
+  }[] = [
+    { key: 'all', label: 'All', cy: 'FilterLinkAll' },
+    { key: 'active', label: 'Active', cy: 'FilterLinkActive' },
+    { key: 'completed', label: 'Completed', cy: 'FilterLinkCompleted' },
+  ];
+
   const activeTodosCount = todos.filter(todo => !todo.completed).length;
   const completedTodosCount = todos.filter(todo => todo.completed).length;
 
@@ -22,43 +32,25 @@ export const Footer: React.FC<FooterProps> = ({
   }
 
   return (
-    // Приховати нижній колонтитул, якщо немає списку завдань
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
         {activeTodosCount} items left
       </span>
 
-      {/* Активне посилання повинно мати клас «вибраний» */}
       <nav className="filter" data-cy="Filter">
-        <a
-          href="#/"
-          className={`filter__link ${status === 'all' ? 'selected' : ''}`}
-          data-cy="FilterLinkAll"
-          onClick={() => setStatus('all')}
-        >
-          All
-        </a>
-
-        <a
-          href="#/active"
-          className={`filter__link ${status === 'active' ? 'selected' : ''}`}
-          data-cy="FilterLinkActive"
-          onClick={() => setStatus('active')}
-        >
-          Active
-        </a>
-
-        <a
-          href="#/completed"
-          className={`filter__link ${status === 'completed' ? 'selected' : ''}`}
-          data-cy="FilterLinkCompleted"
-          onClick={() => setStatus('completed')}
-        >
-          Completed
-        </a>
+        {filters.map(filter => (
+          <a
+            key={filter.key}
+            href="#/"
+            className={`filter__link ${status === filter.key ? 'selected' : ''}`}
+            data-cy={filter.cy}
+            onClick={() => setStatus(filter.key)}
+          >
+            {filter.label}
+          </a>
+        ))}
       </nav>
 
-      {/* цю кнопку слід вимкнути, якщо немає виконаних завдань */}
       <button
         type="button"
         className="todoapp__clear-completed"
