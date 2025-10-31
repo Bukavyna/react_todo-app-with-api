@@ -80,7 +80,7 @@ export const App: React.FC = () => {
     const title = newTitle.trim();
 
     if (!title) {
-      setError(ERROR_MESSAGES.EMPTY_TITLE);
+      setError(getErrorMessage(new  Error(), 'EMPTY_TITLE'));
       setTimeout(() => setError(null), 3000);
 
       return;
@@ -105,8 +105,8 @@ export const App: React.FC = () => {
 
       setTodos(prev => [...prev, created]);
       setNewTitle('');
-    } catch {
-      setError(ERROR_MESSAGES.ADD_TODO);
+    } catch (err) {
+      setError(getErrorMessage(err, 'ADD_TODO'));
 
       setTempTodo(null);
       setTimeout(() => setError(null), 3000);
@@ -127,7 +127,7 @@ export const App: React.FC = () => {
 
     try {
       await todosService.removeTodo(id);
-      setTodos(prev => prev.filter(t => t.id !== id));
+      setTodos(prev => prev.filter(todo => todo.id !== id));
     } catch (err) {
       setError(getErrorMessage(err, 'DELETE_TODO'));
       setTimeout(() => setError(null), 3000);
@@ -153,8 +153,8 @@ export const App: React.FC = () => {
       });
 
       setTodos(prev => prev.map(t => (t.id === updated.id ? updated : t)));
-    } catch {
-      setError(ERROR_MESSAGES.UPDATE_TODO);
+    } catch (err) {
+      setError(getErrorMessage(err, 'UPDATE_TODO'));
       setTimeout(() => setError(null), 3000);
     } finally {
       setProcessingIds(prev => prev.filter(todoId => todoId !== todo.id));
@@ -180,7 +180,7 @@ export const App: React.FC = () => {
       }
 
       if (results.some(r => r.status === 'rejected')) {
-        setError(ERROR_MESSAGES.DELETE_TODO);
+        setError(getErrorMessage(new Error(), 'DELETE_TODO'));
         setTimeout(() => setError(null), 3000);
       }
     } finally {
@@ -237,11 +237,11 @@ export const App: React.FC = () => {
       );
 
       if (hasError) {
-        setError(ERROR_MESSAGES.UPDATE_TODO);
+        setError(getErrorMessage(new Error(), 'UPDATE_TODO'));
         setTimeout(() => setError(null), 3000);
       }
-    } catch {
-      setError(ERROR_MESSAGES.UPDATE_TODO);
+    } catch (err) {
+      setError(getErrorMessage(err, 'UPDATE_TODO'));
       setTimeout(() => setError(null), 3000);
     } finally {
       setProcessingIds(prev => prev.filter(id => !idsToProcess.includes(id)));
@@ -272,7 +272,7 @@ export const App: React.FC = () => {
       setTodos(prev => prev.map(t => (t.id === updated.id ? updated : t)));
     } catch (err) {
       if (title.trim()) {
-        setError(ERROR_MESSAGES.UPDATE_TODO);
+        setError(getErrorMessage(err, 'UPDATE_TODO'));
         setTimeout(() => setError(null), 3000);
       }
 
