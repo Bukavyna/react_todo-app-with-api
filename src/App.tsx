@@ -80,7 +80,7 @@ export const App: React.FC = () => {
     const title = newTitle.trim();
 
     if (!title) {
-      setError(getErrorMessage(new  Error(), 'EMPTY_TITLE'));
+      setError(getErrorMessage(new Error(), 'EMPTY_TITLE'));
       setTimeout(() => setError(null), 3000);
 
       return;
